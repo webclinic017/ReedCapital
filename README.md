@@ -1,60 +1,84 @@
 import requests
 import datetime
+import sys
 
-print('Welcome to Reed Capital. Would you like to start investing today?')
-answer = input()
+def ask(): #Asks whether or not they want to invest
+    print('Welcome to Reed Capital. Would you like to start investing today?')
+    answer = input()
+    if answer.lower() != 'no' and answer.lower() != 'no way' and answer.lower() != 'no thanks':
+        yes()
+    else:
+        no()
 
-if answer.lower() != 'no' and answer.lower() != 'no way' and answer.lower() != 'no thanks':
+def yes(): #If yes, this.
     print('Wonderful. Let\'s get started.')
     print('How much money would you like to invest?')
-    initial_amount = input()
-    if '$' in initial_amount:
+    global initial_amount
+    initial_amount = (input())
+    if '$' in str(initial_amount):
         amount2 = initial_amount.translate({ord('$'): None})
         initial_amount = (amount2)
+    if int(initial_amount) > 1000:
+        invest1000()
+    elif int(initial_amount) < 1000:
+        invest0()
 
-    # amount = int(input())
-    while int(initial_amount) < 1000:
-            print('Sorry, but we require a minimum investment of $1000.')
-            print('We will be here when you are ready to invest.')
-            break
-    else:
+def no(): #If no, this.
+    print('We will be here when you are ready to invest.')
+    sys.exit()
 
-        print('Wonderful! Let\'s get started!')
-        print('Which stonk do you want to purchase?')
+def get_price():
+    global stonk
+    stonk = str(input())
+    now = datetime.datetime.now()
+    r = requests.get(
+        'https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=' + stonk + '&apikey=CHPSEMPFTVB0EX4U')
 
-        while int(initial_amount) > 100:
+    result = r.json()
+    dataForAllDays = result['Time Series (Daily)']
+    dataForSingleDate = dataForAllDays[(now.strftime("%Y-%m-%d"))]
 
-            stonk = str(input())
-            now = datetime.datetime.now()
-            r = requests.get(
-                'https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=' + stonk + '&apikey=CHPSEMPFTVB0EX4U')
+    global price
+    price = (dataForSingleDate['4. close'])
 
-            result = r.json()
-            dataForAllDays = result['Time Series (Daily)']
-            dataForSingleDate = dataForAllDays[(now.strftime("%Y-%m-%d"))]
+def invest1000():
+    print('Which stonk do you want to purchase?')
+    global initial_amount
+    while float(initial_amount) > 100:
+        get_price()
 
-            price = (dataForSingleDate['4. close'])
+        print('One share of ' + stonk.upper() + ' is currently valued at $' + price + (
+            ' How many shares would you like to purchase?'))
 
-            print('One share of ' + stonk.upper() + ' is currently valued at $' + price + (
-                ' How many shares would you like to purchase?'))
+        max_purchase = int(float(initial_amount) // float(price))
 
-            max_purchase = int(int(initial_amount)//float(price))
+        print('You have enough money to purchase up to ' + str(max_purchase) + ' shares')
 
-            print ('You have enough money to purchase up to ' + str(max_purchase) + ' shares')
+        amount3 = int(input())
+        total_price = format(float(price) * amount3, '.2f')
+        #format(foo, '.2f')
+        balance = format(round(float(initial_amount) - float(total_price), 2), '.2f')
 
-            amount3 = int(input())
-            total_price = float(price)*amount3
+        print('That comes out to $' + str(total_price) + '. Your balance is now $' + str(balance) + '.')
 
-            balance = int(initial_amount) - float(total_price)
-
-            print('That comes out to $' + str(total_price) + '. Your balance is now $' + str(balance) +'.')
+        if float(balance) > float(100):
             print('What other stonks would you like to purchase?')
 
-            initial_amount = balance
+        initial_amount = balance
+    invest_end()
+
+def invest_end():
+    print('We are almost finished allocating your assets. If you would like, we can save the residual funds for next time. How does that sound?')
+    answer = input()
+    if answer != 'no':
+            goodbye()
 
 
-else:
-            print('We will be here when you are ready to invest.')
+def invest0(): #If they don't have enough $ to make initial investment
+    print('Unfortunately, Reed Capital requires a minimum initial investment of over $1000.')
+    sys.exit()
 
+def goodbye():
+    print('Thank you for coming in today, we will keep an eye on your investments.')
 
-print('END')
+ask()
