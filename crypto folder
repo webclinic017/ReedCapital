@@ -1,0 +1,27 @@
+while True:
+    import time
+    import ccxt
+    #import matplotlib.pyplot as plt
+    binance = ccxt.binance ()
+
+    def My_BTC(): #Renders my BTC in $
+        ticker = 'BTC'
+        bf = (binance.fetch_ticker(ticker + '/USDT'))
+        BTC_amount = .01
+        return((bf['last']) * BTC_amount)
+
+    def My_ETH(): #Renders my ETH in $
+        ticker = 'ETH'
+        bf = (binance.fetch_ticker(ticker + '/USDT'))
+        ETH_amount = 1
+        return ((bf['last']) * ETH_amount)
+
+    def My_IOTA(): #Renders my IOTA in $
+        ticker = 'IOTA'
+        bf = (binance.fetch_ticker(ticker + '/USDT'))
+        IOTA_amount = 100
+        return((bf['last']) * IOTA_amount)
+
+    My_Total = '$' + str(round(float((My_BTC() + My_ETH() + My_IOTA())), 2)) #formats portfolio balance
+    print (My_Total)
+    time.sleep(1)
