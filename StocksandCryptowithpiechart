@@ -1,0 +1,80 @@
+import matplotlib.pyplot as plt
+import ccxt
+import yfinance as yf
+import datetime
+now = (datetime.datetime.now())
+binance = ccxt.binance()
+
+
+sizes = [] #for pie chart
+labels = []
+colors = colors = ['tab:blue', 'tab:orange', 'tab:green', 'tab:red', 'tab:purple', 'tab:brown', 'tab:pink', 'tab:gray', 'tab:olive', 'tab:cyan']
+
+
+print('How many different types of cryptocurrencies do you own? (Respond numerically)') #THIS IS FOR CC
+number_CC_I_Own = input()
+for i in range(int(number_CC_I_Own)): #collects names and prices
+
+    print('Please insert the ticker symbol of one of your ' + str(number_CC_I_Own) + ' cryptocurrencies')
+    CC = input().upper()
+
+    if len(CC) == 4 or len(CC) == 3: #If it's a ticker symbol
+        print('How much ' + str(CC) + ' do you have?')
+        CC_amount = float(input())
+
+
+        def My_CC():  # Renders price of CC from Binance
+            ticker = CC
+            bf = (binance.fetch_ticker(ticker + '/USDT'))
+            return (bf['last']) * CC_amount #returns value of that CC
+
+        That_CC_Total = float(My_CC()) #Returns value of that CC
+        sizes.append(That_CC_Total) #Returns value of all CCs (so far)
+        That_CC_Total = '$' + str('{:0,.2f}'.format(float(str(sum(sizes)))))  #formats asset balance (so far)
+
+        print ('Your current portfolio balance is ' + str(That_CC_Total))
+        labels.append(CC) #appends name of CC
+
+
+
+print('How many different types of stocks do you own? (Respond numerically)') #THIS IS FOR STONKS
+number_Stonks_I_Own = float(input())
+print('Are you buying on margin?')
+answer = input()
+if answer == 'yes':
+    print('How much margin have you used? (Without $ign)')
+    marginused = float(input())
+    minusmargin = float((marginused/number_Stonks_I_Own))
+
+for i in range(int(number_Stonks_I_Own)): #collects names and prices
+
+    print('Please insert the ticker symbol of one of your ' + str(number_Stonks_I_Own) + ' stonks')
+    Stonk = input().upper()
+
+    if len(Stonk) == 4 or len(Stonk) == 3: #If it's a ticker symbol
+        print('How many shares of ' + str(Stonk) + ' do you have?')
+        Stonk_amount = float(input())
+
+
+        def My_Stonk():  # Renders price of Stonk from YahooFinance
+            ticker = Stonk
+            msft = yf.Ticker(ticker)
+            return (((msft.info.get('regularMarketPrice'))*Stonk_amount)-minusmargin) #returns value of that stonk
+
+
+        sizes.append(My_Stonk()) #Returns value of all Stonks (so far)
+
+        print ('Your current portfolio balance is ' + '$' + str('{:0,.2f}'.format(float(str(sum(sizes))))))
+        labels.append(Stonk) #appends name of Stonk
+
+
+
+print('Here is a beautiful graph displaying your total net worth')
+plt.pie(sizes,  #displays pie chart
+        labels=labels,
+        colors=colors,
+        autopct='%1.1f%%',
+        shadow=True,
+        startangle=90)
+
+plt.show()
