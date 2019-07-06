@@ -1,102 +1,105 @@
+#refined imports and lists
+
 import matplotlib.pyplot as plt
 import ccxt
 import yfinance as yf
 import datetime
 now = (datetime.datetime.now())
 binance = ccxt.binance()
-
-
-sizes = [] #for pie chart
-labels = []
-sizes_percent = []
+CCsizes = [] #price*amount
+STsizes = [] #price*amount
+labels = [] #name of investment
+sizes = CCsizes + STsizes
 sum2 = sum(sizes)
 colors = ['tab:blue', 'tab:orange', 'tab:green', 'tab:red', 'tab:purple', 'tab:brown', 'tab:pink', 'tab:gray', 'tab:olive', 'tab:cyan']
 
 
+
+
+#user inputs number of investments, ticker symbols, and amounts. Program outputs prices and appends ticker symbols and prices to lists
+
 print('How many different types of cryptocurrencies would you like to record today? (Respond numerically)') #THIS IS FOR CC
 number_CC_I_Own = int(input())
-for i in range(int(number_CC_I_Own)): #collects names and prices
 
+for i in range(int(number_CC_I_Own)): #collects names and prices
     print('Please insert the ticker symbol of one of your ' + str(number_CC_I_Own) + ' cryptocurrencies')
     CC = input().upper()
-    print('One ' + CC + ' is currently worth ' + '$' + str('{:0,.2f}'.format(float(str(((binance.fetch_ticker(CC + '/USDT'))['last'])))))+ '!')
-    if len(CC) == 4 or len(CC) == 3: #If it's a ticker symbol
-        print('How much ' + str(CC) + ' do you have?')
-        CC_amount = float(input())
+    print('One ' + CC + ' is currently worth ' + '$' + str('{:0,.2f}'.format(float(str((binance.fetch_ticker(CC + '/USDT'))['last']))))+ '!')
+    print()
+    print('How much ' + str(CC) + ' do you have?')
+    CC_amount = float(input())
 
 
-        def My_CC():  # Renders price of CC from Binance
-            ticker = CC
-            global bf
-            bf = (binance.fetch_ticker(ticker + '/USDT'))
-            global marketvalue
-            marketvalue = (bf['last'])
-            return (bf['last']) * CC_amount #returns value of that CC
+    def My_CC():  # Renders price of CC from Binance
+        ticker = CC
+        global bf
+        bf = (binance.fetch_ticker(ticker + '/USDT'))
+        global marketvalue
+        marketvalue = (bf['last'])
+        return (bf['last']) * CC_amount #returns value of that CC
 
-        That_CC_Total = float(My_CC()) #Returns value of that CC
-        sizes.append(That_CC_Total) #Returns value of all CCs (so far)
-        That_CC_Total = '$' + str('{:0,.2f}'.format(float(str(sum(sizes)))))  #formats asset balance (so far)
-        labels.append(CC) #appends name of CC
+    That_CC_Total = float(My_CC()) #Returns value of that CC
+    CCsizes.append(That_CC_Total) #Returns value of all CCs (so far)
+
+    That_CC_Total = '$' + str('{:0,.2f}'.format(float(str(sum(sizes)))))  #formats asset balance (so far)
+    labels.append(CC) #appends name of CC
 
 
 
+#user inputs number of investments, ticker symbols, and amounts. Program outputs prices and appends ticker symbols and prices to lists
 print('How many different types of stonks would you like to record today? (Respond numerically)') #THIS IS FOR STONKS
-number_Stonks_I_Own = float(input())
-
-
-print('Are you buying on margin?')
-answer = input()
-if answer == 'yes':
-    print('How much margin have you used? (Without $ign)')
-    margin = float(input())
-    global margin_from_each
-    margin_from_each = sizes_percent[:] = [(x * margin) for x in sizes_percent]
-else:
-    minusmargin = 0
+number_Stonks_I_Own = int(input())
 
 for i in range(int(number_Stonks_I_Own)): #collects names and prices
-
     print('Please insert the ticker symbol of one of your ' + str(int(number_Stonks_I_Own)) + ' stonks')
-
     Stonk = input().upper()
     msft = yf.Ticker(Stonk)
     price = (msft.info.get('regularMarketPrice'))
     print('One share of ' + str(Stonk) + ' is currently worth $' + str(price) + '!')
-
-    if len(Stonk) == 4 or len(Stonk) == 3 or len(Stonk) == 5: #If it's a ticker symbol
-
-        print('How many shares of ' + str(Stonk) + ' do you have?')
-        Stonk_amount = float(input())
+    print()
+    print('How many shares of ' + str(Stonk) + ' do you have?')
+    Stonk_amount = float(input())
 
 
-        def My_Stonk():  # Renders price of Stonk from YahooFinance
-            ticker = Stonk
-            msft = yf.Ticker(ticker)
-            price = ((msft.info.get('regularMarketPrice'))*Stonk_amount) #returns value of that stonk
-            return price
-            #return ((((msft.info.get('regularMarketPrice')) * Stonk_amount))) #same as previous, without margin
-            print('One share of ' + str(ticker) + ' is currently worth $' + str(price) + '!')
+    def My_Stonk():  # Renders price of Stonk from YahooFinance
+        ticker = Stonk
+        msft = yf.Ticker(ticker)
+        price = ((msft.info.get('regularMarketPrice'))*Stonk_amount) #returns value of that stonk
+        return price
 
-        sizes.append(My_Stonk()) #Returns value of all Stonks (so far)
-        global balance
-        balance = str('{:0,.0f}'.format(round(float(sum(sizes)))))
-        labels.append(Stonk) #appends name of Stonk
+    STsizes.append(My_Stonk()) #Returns value of all Stonks (so far)
+    global balance
+    balance = str('{:0,.0f}'.format(round(float(sum(sizes)))))
+    labels.append(Stonk) #appends name of Stonk
 
-stocksize = sizes[number_CC_I_Own:]
-sizes_percent = []
-sum2 = sum(sizes)
 
-for x in sizes:
-    percent = x/sum2
-    sizes_percent.append(percent)
 
-real_value = [sizes - margin_from_each for sizes, margin_from_each in zip(sizes, margin_from_each)]
-print(real_value)
+
+
+#user inputs margin amount, program outputs adjusted value of stonks
+print('Are you buying on margin?')
+answer = input()
+if answer == 'yes':
+    print('How much margin have you used? (Without $ign)')
+    global margin
+    margin = int(input())
+else:
+    margin = 0
+    margin_from_each = 0
+#STsizes = sizes[number_CC_I_Own:] #separates stock portfolio
+stonkamount = sum(STsizes) #total value of stock portfolio
+stonk_percent_of_portfolio =  [(x / stonkamount) for x in STsizes] # % of each item in portfolio
+margin_from_each = [(x * margin) for x in stonk_percent_of_portfolio] # $ value of margin
+stonk_true_value = [STsizes - margin_from_each for STsizes, margin_from_each in zip(STsizes, margin_from_each)] #true value of each stonk
+STsizes = stonk_true_value
+sizes = CCsizes + STsizes
+
 
 
 
 print('Here is a beautiful graph displaying your total net worth!!!')
 
+balance = str('{:0,.0f}'.format(round(float(sum(sizes)))))
 
 plt.pie(sizes,  #displays pie chart
         labels=labels,
@@ -104,5 +107,6 @@ plt.pie(sizes,  #displays pie chart
         autopct='%1.1f%%',
         shadow=True,
         startangle=90)
-plt.title('Your net worth: $' + balance)
+plt.title('Your portfolio is worth $' + str(balance) + '!')
+#plt.legend()
 plt.show()
