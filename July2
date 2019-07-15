@@ -1,0 +1,98 @@
+# 3 - 9: imports modules and creates lists #weaknesses: depends on USDT from Binance and yahoo Finance, doesn't show values along with percentages
+
+import matplotlib.pyplot as plt
+import ccxt
+import yfinance as yf
+import time
+CCsizes = [] #price*amount
+STsizes = [] #price*amount
+labels = [] #name of investment
+CCamount = []
+STamount = []
+colors = ['tab:blue', 'tab:orange', 'tab:green', 'tab:red', 'tab:purple', 'tab:brown', 'tab:pink', 'tab:gray', 'tab:olive', 'tab:cyan']
+
+#
+
+
+# 16 - 30: user inputs number of investments, ticker symbols, and amounts. Program outputs prices and appends ticker symbols and prices to lists
+
+print('How many different types of cryptocurrencies would you like to record today? (Respond numerically)') #THIS IS FOR CC
+number_CC_I_Own = int(input())
+
+for i in range(number_CC_I_Own):
+    print('Please insert the ticker symbol of one of your ' + str(number_CC_I_Own) + ' cryptocurrencies.')
+    CC = input().upper()
+    worth = (ccxt.binance().fetch_ticker(CC + '/USDT'))['last']
+    print('One ' + CC + ' is currently worth ' + '$' + str('{:0,.2f}'.format(float(str(worth))))+ '!')
+    print()
+    print('How much ' + str(CC) + ' do you have?')
+
+    CC_amount = float(input())
+    value = worth * CC_amount
+    CCsizes.append(value)
+    labels.append(CC)
+    CC_amount.append(CCamount)
+
+
+
+
+# 37 - 51: user inputs number of investments, ticker symbols, and amounts. Program outputs prices and appends ticker symbols and prices to lists
+
+print('How many different types of stonks would you like to record today? (Respond numerically)')
+number_STs_I_Own = int(input())
+
+for i in range(number_STs_I_Own): #collects names and prices
+    print('Please insert the ticker symbol of one of your ' + str(number_STs_I_Own) + ' stonks')
+    ST = str(input().upper())
+    worth = (yf.Ticker(ST).info.get('regularMarketPrice'))
+    print('One share of ' + ST + ' is currently worth $' + str(worth) + '!')
+    print()
+    print('How many shares of ' + ST + ' do you have?')
+
+    ST_amount = float(input())
+    value = worth * ST_amount
+    STsizes.append(value)
+    labels.append(ST)
+    ST_amount.append(STamount)
+
+
+
+
+# 58 - 73: user inputs margin amount, program outputs adjusted value of STs
+
+print('Are you buying on margin?')
+answer = input()
+if answer == 'yes':
+    print('How much margin have you used? (Without $ign)')
+    margin = int(input())
+else:
+    margin = 0
+    margin_from_each = 0
+
+STamount = sum(STsizes) #total value of stock portfolio
+ST_percent_of_portfolio =  [(x / STamount) for x in STsizes] # % of each item in portfolio
+margin_from_each = [(x * margin) for x in ST_percent_of_portfolio] # $ value of margin
+ST_true_value = [STsizes - margin_from_each for STsizes, margin_from_each in zip(STsizes, margin_from_each)] #true value of each ST
+
+STsizes = ST_true_value
+sizes = CCsizes + STsizes
+
+
+
+# 78 - 89 Displays graph
+print('Here is a beautiful graph displaying your total net worth!!!')
+balance = str('{:0,.0f}'.format(round(float(sum(sizes)))))
+
+plt.pie(sizes,  #displays pie chart
+        labels=labels,
+        colors=colors,
+        autopct='%1.1f%%',
+        shadow=True,
+        startangle=90)
+plt.title('Your portfolio is worth $' + str(balance) + '!')
+#plt.legend()
+plt.show()
+
+while True:
+    print(sum(sizes))
+    time.sleep(1)
