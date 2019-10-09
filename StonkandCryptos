@@ -1,0 +1,105 @@
+import ccxt
+import yfinance as yf
+import time
+
+import matplotlib.pyplot as plt
+
+CC_investments = []
+CC_amounts = []
+ST_investments = []
+ST_amounts = []
+Total_Portfolio_Value = []
+
+sizes = [] #for pie chart
+labels = []
+colors = colors = ['tab:blue', 'tab:orange', 'tab:green', 'tab:red', 'tab:purple', 'tab:brown', 'tab:pink', 'tab:gray', 'tab:olive', 'tab:cyan']
+
+
+while True: #User inputs ticker symbols and amounts, program appends to list
+    print('Please insert the ticker symbol of one of your cryptocurrencies.')
+    print('(To move on to stocks, type "stocks")')
+    CC_ticker = input().upper()
+    if CC_ticker != 'STOCKS':
+        CC_investments.append(CC_ticker)
+        print('How much ' + str(CC_ticker) + ' do you have?')
+        CC_amount = float(input())
+        CC_amounts.append(CC_amount)
+    else:
+        break
+
+
+while True: #User inputs ticker symbols and amounts, program appends to list
+    print('Please insert the ticker symbol of one of your stonks.')
+    print('(To move on to the graph, type "graph")')
+    ST_ticker = input().upper()
+    if ST_ticker != 'GRAPH':
+        ST_investments.append(ST_ticker)
+
+        print('How much ' + str(ST_ticker) + ' do you have?')
+        ST_amount = float(input())
+        ST_amounts.append(ST_amount)
+    else:
+        break
+
+print('Are you buying on margin?')
+answer = input()
+if answer == 'yes':
+    print('How much margin have you used? (Without $ign)')
+    margin = int(input())
+else:
+    margin = 0
+    margin_from_each = 0
+
+
+
+# CC_investments = ['BTC', 'ETH', 'IOTA'] #manually created library to avoid answering questions
+# CC_amounts = [1.1873, 10.0, 10000.0]
+# ST_investments = ['UBER', 'BABA']
+# ST_amounts = [50.0, 12.0]
+# margin = 2000
+
+def net_worth():
+    while True:
+        CC_value = []
+        for x in CC_investments:
+
+            value = ((ccxt.binance().fetch_ticker(x + '/USDT'))['last'])
+            CC_value.append(value)
+
+        Value_Of_CC_Portfolio = sum([CC_value*CC_amounts for CC_value, CC_amounts in zip(CC_value, CC_amounts)])
+       # print(Value_Of_CC_Portfolio)
+
+        ST_value = []
+        for x in ST_investments:
+
+            value = (yf.Ticker(x).info.get('regularMarketPrice'))
+            ST_value.append(value)
+
+        Value_Of_ST_Portfolio = sum([ST_value*ST_amounts for ST_value, ST_amounts in zip(ST_value, ST_amounts)])
+        #print(Value_Of_ST_Portfolio)
+        Total_Value = Value_Of_CC_Portfolio + Value_Of_ST_Portfolio - margin
+        Total_Portfolio_Value.append(Total_Value)
+        # print(Total_Value)
+        #print(Total_Portfolio_Value)
+
+        # time.sleep(1)
+
+
+
+# print(CC_investments)
+# print(CC_amounts)
+# print(ST_investments)
+# print(ST_amounts)
+# print(margin)
+net_worth() #MAKE THIS PROGRAM SPIT OUT THE COPY/PASTE THING FOR FIRST TIME USERS... then use that every other time
+
+
+print('Here is a beautiful graph displaying your total net worth')
+plt.pie(sizes,  #displays pie chart
+        labels=CC_investments,
+        colors=colors,
+        autopct='%1.1f%%',
+        shadow=True,
+        startangle=90)
+
+plt.show()
