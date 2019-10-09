@@ -28,11 +28,11 @@ def no(): #If no, this.
     sys.exit()
 
 def get_price():
-    global stonk
-    stonk = str(input())
+    global stock
+    stock = str(input())
     now = datetime.datetime.now()
     r = requests.get(
-        'https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=' + stonk + '&apikey=CHPSEMPFTVB0EX4U')
+        'https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=' + stock + '&apikey=CHPSEMPFTVB0EX4U')
 
     result = r.json()
     dataForAllDays = result['Time Series (Daily)']
@@ -42,12 +42,12 @@ def get_price():
     price = (dataForSingleDate['4. close'])
 
 def invest1000():
-    print('Which stonk do you want to purchase?')
+    print('Which stock do you want to purchase?')
     global initial_amount
     while float(initial_amount) > 100:
         get_price()
 
-        print('One share of ' + stonk.upper() + ' is currently valued at $' + price + (
+        print('One share of ' + stock.upper() + ' is currently valued at $' + price + (
             ' How many shares would you like to purchase?'))
 
         max_purchase = int(float(initial_amount) // float(price))
@@ -62,7 +62,7 @@ def invest1000():
         print('That comes out to $' + str(total_price) + '. Your balance is now $' + str(balance) + '.')
 
         if float(balance) > float(100):
-            print('What other stonks would you like to purchase?')
+            print('What other stocks would you like to purchase?')
 
         initial_amount = balance
     invest_end()
